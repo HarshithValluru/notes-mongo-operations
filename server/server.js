@@ -1,8 +1,8 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var {ObjectID} = require('mongodb');
 
 var port = process.env.port || 3000 ;
-console.log("port ==",port);
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
@@ -23,6 +23,22 @@ app.get('/todos', (req,res) => {
         res.send({todos});
     },(err)=>{
         res.status(400).send(todos);
+    });
+})
+
+app.get('/todos/:id', (req,res) => {
+    var id = req.params.id;
+    //console.log("id:",id);
+    if(!ObjectID.isValid(id))
+        res.status(404).send({err:"Invalid ID via objectID"});
+    Todo.findById(id).then((docs)=>{
+        if(!docs)
+            //res.status(404).send({"err":"Id not found"});
+            res.status(404).send();
+        res.status(200).send({docs});
+    },(err)=>{
+        console.log("INVALID ID");
+        res.status(400).send({err:"Invalid Id"});
     });
 })
 
