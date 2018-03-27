@@ -38,7 +38,9 @@ describe("Post /todos",()=>{
                     expect(todos.length).toBe(1);
                     expect(todos[0].text).toBe(text);
                     done();
-                }).catch((err)=>done(err));
+                },(err)=>{
+                    done(err);
+                });
             });
     });    
     it("should not create a todo with invalid body data",(done)=>{
@@ -84,12 +86,12 @@ describe("Get /todos/:id",()=>{
         request(app)
             .get(`/todos/${hexId}`)
             .expect(404)
-            // .expect((res)=>{
-            //     expect(res.body.err).toBe("Id not found");
-            // })
+            .expect((res)=>{
+                expect(res.body.err).toBe("Id not found");
+            })
             .end(done);
     });
-    it("should return 404 for non-object id's",(done)=>{
+    it("should return 400 for non-object id's",(done)=>{
         request(app)
             .get('/todos/12azc')
             .expect(400)
@@ -100,3 +102,41 @@ describe("Get /todos/:id",()=>{
             .end(done);
     })
 });
+
+describe("Delete /todos/:id",()=>{
+    var hexId = todos[0]._id.toHexString();
+    it("should remove a todo",(done)=>{
+        request(app)
+            .delete(`/todos/${hexId}`)
+            .expect(200)
+            .expect((res)=>{
+                expect(res.body.docs.text).toBe(todos[0].text)
+            })
+            .end((err,res)=>{
+                if(err)
+                    return done(err);
+                Todo.findById(hexId).then((doc)=>{
+                    expect(doc).not.toBeTruthy();
+                    done();
+                }).catch((err)=>done(err));
+            });
+    });
+    it("should return 404 if todo not found",(done)=>{
+        request(app)
+            .delete(`/todos/${new ObjectID().toHexString()}`)
+            .expect(404)
+            .expect((res)=>{
+                expect(res.body.err).toBe("Id not found");
+            })
+            .end(done);
+    });
+    it("should return 400 for invalid todo object-id's",(done)=>{
+        request(app)
+        .delete("/todos/1323VSB")
+        .expect(400)
+        .expect((res)=>{
+            expect(res.body.err).toBe("Invalid ID via objectID");
+        })
+        .end(done);
+    });
+})

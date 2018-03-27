@@ -33,8 +33,8 @@ app.get('/todos/:id', (req,res) => {
         return res.status(400).send({err:"Invalid ID via objectID"});
     Todo.findById(id).then((docs)=>{
         if(!docs)
-            //res.status(404).send({"err":"Id not found"});
-            return res.status(404).send();
+            return res.status(404).send({"err":"Id not found"});
+            //return res.status(404).send();
         res.status(200).send({docs});
     },(err)=>{                                      //control comes here iff 'if' in line-32 is removed. 
         res.status(400).send({err:"Invalid ID"});
@@ -46,17 +46,17 @@ app.delete("/todos/:id",(req,res)=>{
     console.log(id);
     if(!ObjectID.isValid(id)){
         console.log("Invalid object");
-        return res.status(400).send();
+        return res.status(400).send({err:"Invalid ID via objectID"});
     }
     Todo.findByIdAndRemove(id).then((docs)=>{
         if(!docs){
             console.log("Returns false");
-            return res.status(404).send();
+            return res.status(404).send({"err":"Id not found"});
         }
         console.log("Returns true");
         res.status(200).send({docs});
     },(error)=>{
-        res.status(400).send();
+        res.status(400).send({err:"Invalid ID"});
     })
 });
 
