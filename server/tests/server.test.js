@@ -92,9 +92,10 @@ describe("Get /todos/:id",()=>{
     it("should return 404 for non-object id's",(done)=>{
         request(app)
             .get('/todos/12azc')
-            .expect(404)
+            .expect(400)
             .expect((res)=>{
                 expect(res.body.err).toBe("Invalid ID via objectID");
+                //expect(res.body.err).toBe("Invalid ID");
             })
             .end(done);
     })

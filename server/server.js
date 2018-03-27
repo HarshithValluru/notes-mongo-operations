@@ -2,7 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var {ObjectID} = require('mongodb');
 
-var port = process.env.port || 3000 ;
+var port = process.env.PORT || 3000 ;
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
@@ -30,19 +30,37 @@ app.get('/todos/:id', (req,res) => {
     var id = req.params.id;
     //console.log("id:",id);
     if(!ObjectID.isValid(id))
-        res.status(404).send({err:"Invalid ID via objectID"});
+        return res.status(400).send({err:"Invalid ID via objectID"});
     Todo.findById(id).then((docs)=>{
         if(!docs)
             //res.status(404).send({"err":"Id not found"});
-            res.status(404).send();
+            return res.status(404).send();
         res.status(200).send({docs});
-    },(err)=>{
-        console.log("INVALID ID");
-        res.status(400).send({err:"Invalid Id"});
+    },(err)=>{                                      //control comes here iff 'if' in line-32 is removed. 
+        res.status(400).send({err:"Invalid ID"});
     });
-})
+});
+
+app.delete("/todos/:id",(req,res)=>{
+    var id = req.params.id;
+    console.log(id);
+    if(!ObjectID.isValid(id)){
+        console.log("Invalid object");
+        return res.status(400).send();
+    }
+    Todo.findByIdAndRemove(id).then((docs)=>{
+        if(!docs){
+            console.log("Returns false");
+            return res.status(404).send();
+        }
+        console.log("Returns true");
+        res.status(200).send({docs});
+    },(error)=>{
+        res.status(400).send();
+    })
+});
 
 app.listen(port, () => {
-    console.log("Server started on port 3000.");
+    console.log(`Server started on port ${port}`);
 });
 module.exports = {app};
