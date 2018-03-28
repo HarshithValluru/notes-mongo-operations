@@ -19,7 +19,6 @@ app.post('/todos',(req,res)=>{
     }).save().then( (doc) => res.send(doc),
         (err) => res.status(400).send(err)
     );
-    //res.end();
 });
 app.get('/todos', (req,res) => {
     Todo.find().then((todos)=>{
@@ -73,6 +72,16 @@ app.patch("/todos/:id",(req,res)=>{
         res.status(200).send({docs});
     },(err)=>res.status(400).send());
 });
+
+app.post("/users",(req,res)=>{
+    var body = lodash.pick(req.body,["email","password"]);
+    console.log(body);
+    var newUser = new User(body).generateAuthToken();
+    console.log("newUser::",newUser);
+    // newUser.save().then((result)=>{
+    //     res.header(result.tokens[0].token).send({result})
+    //     },(err)=>res.status(400).send(err));
+})
 
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
