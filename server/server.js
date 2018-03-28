@@ -80,7 +80,7 @@ app.post("/users",(req,res)=>{
         var token = result.tokens[0].token;
         console.log(typeof token);
         res.header(token).send({result})
-        },(err)=>res.status(400).send(err));
+    },(err)=>res.status(400).send(err));
     // var newUser = new User(body);
     // newUser.save().then(()=>{
     //     var returnedToken = newUser.generateAuthToken();
@@ -92,6 +92,14 @@ app.post("/users",(req,res)=>{
     // },(err)=>{
     //     res.status(400).send({"err":err});
     // });
+});
+
+app.get('/users', (req,res) => {
+    User.find().then((users)=>{
+        res.send({users});
+    },(err)=>{
+        res.status(400).send(users);
+    });
 });
 
 app.listen(port, () => {
