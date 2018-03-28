@@ -37,6 +37,10 @@ UserSchema.methods.generateAuthToken = function(){      //since 'this' cant be u
     var token = jwt.sign({access},"123abc");
     //user.tokens = user.tokens.concat([{access,token}]); OR
     user.tokens.push({access,token});
+    // user.save().then((token)=>{
+    //     console.log("token in user.js::",token);
+    //     return token;
+    // });
     return user;
 };
 var User = mongoose.model("User",UserSchema);

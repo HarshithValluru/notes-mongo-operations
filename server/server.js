@@ -75,15 +75,28 @@ app.patch("/todos/:id",(req,res)=>{
 
 app.post("/users",(req,res)=>{
     var body = lodash.pick(req.body,["email","password"]);
-    console.log(body);
     var newUser = new User(body).generateAuthToken();
-    console.log("newUser::",newUser);
-    // newUser.save().then((result)=>{
-    //     res.header(result.tokens[0].token).send({result})
-    //     },(err)=>res.status(400).send(err));
-})
+    newUser.save().then((result)=>{
+        var token = result.tokens[0].token;
+        console.log(typeof token);
+        res.header(token).send({result})
+        },(err)=>res.status(400).send(err));
+    // var newUser = new User(body);
+    // newUser.save().then(()=>{
+    //     var returnedToken = newUser.generateAuthToken();
+    //     console.log("returnedToken::",returnedToken);
+    //     return returnedToken;
+    // }).then((token)=>{
+    //     console.log("token in server.js::",token);
+    //     res.header("x-auth",token).send({newUser});
+    // },(err)=>{
+    //     res.status(400).send({"err":err});
+    // });
+});
 
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
 module.exports = {app};
+
+
