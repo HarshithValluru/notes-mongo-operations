@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const lodash = require('lodash');
 const jwt = require('jsonwebtoken');
 
 var UserSchema = new mongoose.Schema({
@@ -30,6 +31,11 @@ var UserSchema = new mongoose.Schema({
         }
     }]
 });
+UserSchema.methods.toJSON = function(){
+    var user = this;
+    //var userObject = user.toObject();
+    return lodash.pick(user,["_id","email"]);
+};
 UserSchema.methods.generateAuthToken = function(){      //since 'this' cant be used in Arrow functions
     var user = this;
     var access = "auth";
@@ -37,11 +43,10 @@ UserSchema.methods.generateAuthToken = function(){      //since 'this' cant be u
     var token = jwt.sign({access},"123abc");
     //user.tokens = user.tokens.concat([{access,token}]); OR
     user.tokens.push({access,token});
-    // user.save().then((token)=>{
-    //     console.log("token in user.js::",token);
-    //     return token;
-    // });
-    return user;
+    return user.save().then(()=>{
+        return token;
+    });
+    //return user;
 };
 var User = mongoose.model("User",UserSchema);
 

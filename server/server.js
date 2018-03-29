@@ -75,23 +75,22 @@ app.patch("/todos/:id",(req,res)=>{
 
 app.post("/users",(req,res)=>{
     var body = lodash.pick(req.body,["email","password"]);
-    var newUser = new User(body).generateAuthToken();
-    newUser.save().then((result)=>{
-        var token = result.tokens[0].token;
-        console.log(typeof token);
-        res.header(token).send({result})
-    },(err)=>res.status(400).send(err));
-    // var newUser = new User(body);
-    // newUser.save().then(()=>{
-    //     var returnedToken = newUser.generateAuthToken();
-    //     console.log("returnedToken::",returnedToken);
-    //     return returnedToken;
-    // }).then((token)=>{
-    //     console.log("token in server.js::",token);
-    //     res.header("x-auth",token).send({newUser});
-    // },(err)=>{
-    //     res.status(400).send({"err":err});
-    // });
+    // var newUser = new User(body).generateAuthToken();
+    // newUser.save().then((result)=>{
+    //     var token = result.tokens[0].token;
+    //     console.log(typeof token,"::",token);
+    //     res.header(token).send({result})
+    // },(err)=>res.status(400).send(err));
+    var newUser = new User(body);
+    newUser.save().then(()=>{
+        return newUser.generateAuthToken();
+    }).then((token)=>{
+        console.log("Token::",token);
+        res.header("x-auth",token).send({newUser});
+    },(err)=>{
+        console.log("err::",err);
+        res.status(400).send({"err":"Unable to push record"});
+    });
 });
 
 app.get('/users', (req,res) => {
