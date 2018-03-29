@@ -31,6 +31,7 @@ var UserSchema = new mongoose.Schema({
         }
     }]
 });
+//Instance Methods
 UserSchema.methods.toJSON = function(){
     var user = this;
     //var userObject = user.toObject();
@@ -39,8 +40,8 @@ UserSchema.methods.toJSON = function(){
 UserSchema.methods.generateAuthToken = function(){      //since 'this' cant be used in Arrow functions
     var user = this;
     var access = "auth";
-    //var token = jwt.sign({_id:user._id.toHexString(),access},"123abc");
-    var token = jwt.sign({access},"123abc");
+    var token = jwt.sign({_id:user._id.toHexString(),access},"123abc");
+    //var token = jwt.sign({access},"123abc");
     //user.tokens = user.tokens.concat([{access,token}]); OR
     user.tokens.push({access,token});
     return user.save().then(()=>{
@@ -48,6 +49,22 @@ UserSchema.methods.generateAuthToken = function(){      //since 'this' cant be u
     });
     //return user;
 };
+//Model Method
+UserSchema.statics.findByToken = function(token) {
+    var User = this;
+    var decoded;
+    try{
+        decoded = jwt.verify(token,"123abc");
+    } catch(err){
+        return Promise.reject();
+    }
+    return User.findOne({
+        "_id" : decoded._id,
+        "tokens.token" : token,
+        "tokens.access": "auth"
+    })
+};
+
 var User = mongoose.model("User",UserSchema);
 
 module.exports = {User}

@@ -9,6 +9,7 @@ var port = process.env.PORT || 3000 ;
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
+var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 app.use(bodyParser.json());
@@ -85,12 +86,14 @@ app.post("/users",(req,res)=>{
     newUser.save().then(()=>{
         return newUser.generateAuthToken();
     }).then((token)=>{
-        console.log("Token::",token);
         res.header("x-auth",token).send({newUser});
     },(err)=>{
-        console.log("err::",err);
         res.status(400).send({"err":"Unable to push record"});
     });
+});
+
+app.get("/users/me", authenticate, (req,res)=>{
+    res.send(req.user);
 });
 
 app.get('/users', (req,res) => {
