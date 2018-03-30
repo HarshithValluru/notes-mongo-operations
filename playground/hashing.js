@@ -50,7 +50,10 @@ bcrypt.compare(pwd,hashPwd2,(err,res)=>{
     console.log("hashPwd2:",res);
 });
 
-
+var userHashedPwd = "$2a$10$hjjJdX0Zip4VHlR9dFRHFOyrdDfCuZ3We5FvKxB41SWI5ml2e34LW";
+bcrypt.compare("password!",userHashedPwd,(err,res)=>{
+    console.log("userHashedPwd",res);
+});
 
 
 
