@@ -86,6 +86,17 @@ app.post("/users",(req,res)=>{
     });
 });
 
+app.post("/users/login",(req,res)=>{
+	var body = lodash.pick(req.body,["email","password"]);
+	User.findByCredentials(body.email,body.password).then((userDetails)=>{
+		return userDetails.generateAuthToken().then((token)=>{
+			res.header("x-auth",token).send(userDetails);
+		});
+	},(err)=>{
+		res.status(400).send({"err":"Invalid UserName or Password"});
+	});
+});
+
 app.get("/users/me", authenticate, (req,res)=>{
     res.send(req.user);
 });
@@ -125,9 +136,11 @@ app.delete("/users/:id",(req,res)=>{
     })
 });
 
+app.delete("/users/me/token",(req,res)=>{
+	
+});
+
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
 module.exports = {app};
-
-

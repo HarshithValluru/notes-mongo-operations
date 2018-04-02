@@ -56,7 +56,7 @@ UserSchema.statics.findByToken = function(token) {
     var decoded;
     try{
         decoded = jwt.verify(token,"123abc");
-    } catch(err){
+    } catch(err) {
         return Promise.reject();
     }
     return User.findOne({
@@ -64,6 +64,23 @@ UserSchema.statics.findByToken = function(token) {
         "tokens.token" : token,
         "tokens.access": "auth"
     })
+};
+
+UserSchema.statics.findByCredentials = function(email,pwd) {
+	var User = this;
+	return User.findOne({"email":email}).then((userDetails)=>{
+		if(!userDetails)
+			return Promise.reject();
+		//bcrypt library functions supports only callbacks but not Promises. Since we need a promise object, we will create a new Promise Object with a callBack function.
+		return new Promise((resolve,reject)=>{
+			bcrypt.compare(pwd,userDetails.password,(err,res)=>{
+				if(res)
+					resolve(userDetails);
+				else
+					reject();
+			});
+		});
+	});
 };
 
 UserSchema.pre("save",function(next){
