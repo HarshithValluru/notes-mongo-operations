@@ -50,7 +50,16 @@ UserSchema.methods.generateAuthToken = function(){      //since 'this' cant be u
     });
     //return user;
 };
-//Model Method
+UserSchema.methods.removeToken = function(token){
+    var user = this;
+    return user.update({
+        $pull : {
+            tokens : {token}
+        }
+    });
+};
+
+//Model Methods
 UserSchema.statics.findByToken = function(token) {
     var User = this;
     var decoded;
@@ -65,7 +74,6 @@ UserSchema.statics.findByToken = function(token) {
         "tokens.access": "auth"
     })
 };
-
 UserSchema.statics.findByCredentials = function(email,password){
     var User = this;
     return User.findOne({email}).then((user)=>{

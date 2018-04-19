@@ -123,22 +123,26 @@ app.get('/users/:id', (req,res) => {
     });
 });
 
-app.delete("/users/:id",(req,res)=>{
-    var id = req.params.id;
-    if(!ObjectID.isValid(id))
-        return res.status(400).send({err:"Invalid ID via objectID"});
-    User.findByIdAndRemove(id).then((docs)=>{
-        if(!docs)
-            return res.status(404).send({"err":"Id not found"});
-        res.status(200).send({docs});
-    },(error)=>{
-        res.status(400).send({err:"Invalid ID"});
-    })
+// app.delete("/users/:id",(req,res)=>{
+//     var id = req.params.id;
+//     if(!ObjectID.isValid(id))
+//         return res.status(400).send({err:"Invalid ID via objectID"});
+//     User.findByIdAndRemove(id).then((docs)=>{
+//         if(!docs)
+//             return res.status(404).send({"err":"Id not found"});
+//         res.status(200).send({docs});
+//     },(error)=>{
+//         res.status(400).send({err:"Invalid ID"});
+//     })
+// });
+
+app.delete("/users/me/token",authenticate,(req,res)=>{
+    req.user.removeToken(req.token).then(()=>{
+        res.send();
+    },(err)=>res.send(err));
 });
 
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
 module.exports = {app};
-
-
