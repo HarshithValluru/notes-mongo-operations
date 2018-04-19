@@ -80,9 +80,20 @@ app.post("/users",(req,res)=>{
     newUser.save().then(()=>{
         return newUser.generateAuthToken();
     }).then((token)=>{
-        res.header("x-auth",token).send({newUser});
+        res.header("x-auth",token).send(newUser);
     },(err)=>{
         res.status(400).send({"err":"Unable to push record"});
+    });
+});
+
+app.post("/users/login",(req,res)=>{
+    var body = lodash.pick(req.body,["email","password"]);
+    User.findByCredentials(body.email,body.password).then((user)=>{
+        user.generateAuthToken().then((token)=>{
+            res.header("x-auth",token).send(user);
+        });
+    }).catch((err)=>{
+        res.status(400).send(err);
     });
 });
 
