@@ -142,6 +142,10 @@ app.delete("/users/me/token",authenticate,(req,res)=>{
     },(err)=>res.send(err));
 });
 
+app.delete("/users/me/token",(req,res)=>{
+	
+});
+
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
