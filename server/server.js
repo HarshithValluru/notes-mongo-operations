@@ -32,11 +32,14 @@ app.get('/todos', authenticate, (req,res) => {
     });
 })
 
-app.get('/todos/:id', (req,res) => {
+app.get('/todos/:id', authenticate, (req,res) => {
     var id = req.params.id;
     if(!ObjectID.isValid(id))
         return res.status(400).send({err:"Invalid ID via objectID"});
-    Todo.findById(id).then((docs)=>{
+    Todo.findOne({
+        _id : id,
+        _creator : req.user._id
+    }).then((docs)=>{
         if(!docs)
             return res.status(404).send({"err":"Id not found"});
             //return res.status(404).send();
@@ -46,11 +49,14 @@ app.get('/todos/:id', (req,res) => {
     });
 });
 
-app.delete("/todos/:id",(req,res)=>{
+app.delete("/todos/:id", authenticate, (req,res)=>{
     var id = req.params.id;
     if(!ObjectID.isValid(id))
         return res.status(400).send({err:"Invalid ID via objectID"});
-    Todo.findByIdAndRemove(id).then((docs)=>{
+    Todo.findOneAndRemove({
+        _id : id,
+        _creator : req.user._id
+    }).then((docs)=>{
         if(!docs)
             return res.status(404).send({"err":"Id not found"});
         res.status(200).send({docs});
@@ -59,7 +65,7 @@ app.delete("/todos/:id",(req,res)=>{
     })
 });
 
-app.patch("/todos/:id",(req,res)=>{
+app.patch("/todos/:id", authenticate, (req,res)=>{
     var id = req.params.id;
     var body = lodash.pick(req.body,["text","completed"]);
     if(!ObjectID.isValid(id))
@@ -70,7 +76,10 @@ app.patch("/todos/:id",(req,res)=>{
         body.completed = false;
         body.completedAt = null;
     }
-    Todo.findByIdAndUpdate(id, {$set :body}, {new:true} ).then((docs)=>{
+    Todo.findOneAndUpdate({
+        _id : id,
+        _creator : req.user._id
+    }, {$set :body}, {new:true} ).then((docs)=>{
         if(!docs)
             return res.status(404).send();
         res.status(200).send({docs});
